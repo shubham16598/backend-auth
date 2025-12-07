@@ -9,6 +9,7 @@ We have detailed guides and interview preparation materials in the `docs/` folde
 *   **[JWT Authentication Guide](docs/jwt-auth.md)**: Covers JWT structure, security, storage strategies, and interview questions.
 *   **[Google OAuth 2.0 Guide](docs/google-oauth.md)**: Covers OAuth flow, roles, OpenID Connect, and Passport.js details.
 *   **[Building an OAuth Provider](docs/oauth-provider.md)**: How to build your own "Login with X" service.
+*   **[Sessions vs JWT](docs/session-vs-jwt.md)**: Comparison of Stateful vs Stateless auth.
 *   **[Advanced System Design Concepts](docs/system-design-auth.md)**: RBAC, ABAC, Revocation, SSO, MFA.
 
 ## Quick Start

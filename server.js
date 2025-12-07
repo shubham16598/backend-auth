@@ -33,6 +33,25 @@ app.use(limiter);
 app.use(express.json());
 app.use(passport.initialize());
 
+// Session Configuration
+const session = require('express-session');
+const MongoStore = require('connect-mongo');
+
+app.use(session({
+    secret: process.env.SESSION_SECRET || 'your_session_secret',
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({
+        mongoUrl: process.env.MONGO_URI || 'mongodb://localhost:27017/auth-practice'
+    }),
+    cookie: {
+        maxAge: 1000 * 60 * 60 * 24, // 1 day
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production' // true in production
+    }
+}));
+
+
 // Passport Config
 require('./config/passport')(passport);
 
@@ -47,6 +66,7 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/auth-practi
 // Routes
 app.use('/auth', require('./routes/auth'));
 app.use('/oauth', require('./routes/oauthProvider'));
+app.use('/session', require('./routes/sessionAuth'));
 
 app.get('/', (req, res) => {
     res.send('API is running...');
