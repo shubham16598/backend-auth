@@ -30,21 +30,8 @@ router.post('/register', async (req, res) => {
 
         await user.save();
 
-        const payload = {
-            user: {
-                id: user.id
-            }
-        };
-
-        jwt.sign(
-            payload,
-            process.env.JWT_SECRET || 'secret', // Fallback for dev
-            { expiresIn: 360000 },
-            (err, token) => {
-                if (err) throw err;
-                res.json({ token });
-            }
-        );
+        const sendTokenResponse = require('../utils/sendToken');
+        sendTokenResponse(user, 200, res);
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server error');
@@ -70,21 +57,8 @@ router.post('/login', async (req, res) => {
             return res.status(400).json({ msg: 'Invalid Credentials' });
         }
 
-        const payload = {
-            user: {
-                id: user.id
-            }
-        };
-
-        jwt.sign(
-            payload,
-            process.env.JWT_SECRET || 'secret',
-            { expiresIn: 360000 },
-            (err, token) => {
-                if (err) throw err;
-                res.json({ token });
-            }
-        );
+        const sendTokenResponse = require('../utils/sendToken');
+        sendTokenResponse(user, 200, res);
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server error');
@@ -117,25 +91,21 @@ router.get('/google', passport.authenticate('google', { scope: ['profile', 'emai
 router.get('/google/callback', 
     passport.authenticate('google', { failureRedirect: '/' }),
     (req, res) => {
-        // Successful authentication, redirect or generate token
-        // Here we will generate a JWT and send it back (or redirect to frontend with token)
-        
-        const payload = {
-            user: {
-                id: req.user.id
-            }
-        };
-
-        jwt.sign(
-            payload,
-            process.env.JWT_SECRET || 'secret',
-            { expiresIn: 360000 },
-            (err, token) => {
-                if (err) throw err;
-                // For practice, we'll just display the token in JSON. 
-                // In a real app, you might redirect to a client URL with the token as a query param.
-                res.json({ token });
-            }
-        );
+        const sendTokenResponse = require('../utils/sendToken');
+        // We need to construct a user object that matches what sendToken expects (id)
+        // req.user is already populated by passport
+        sendTokenResponse(req.user, 200, res);
     }
 );
+
+// @route   GET /auth/logout
+// @desc    Logout user / clear cookie
+// @access  Private
+router.get('/logout', (req, res) => {
+    res.cookie('token', 'none', {
+        expires: new Date(Date.now() + 10 * 1000),
+        httpOnly: true
+    });
+
+    res.status(200).json({ success: true, data: {} });
+});
